@@ -39,7 +39,7 @@ async function run() {
 
         // All operations api
         app.get("/products", async (req, res) => {
-            const { search, brand, category, price } = req.query;
+            const { search, brand, category, price, sortPrice, sortDate } = req.query;
 
             const queryData = {};
 
@@ -65,9 +65,40 @@ async function run() {
                 };
             }
 
+
+            // create a pipeline for sorting price
+
+            const sortPipeLine = [
+                { $match: queryData },
+                {
+                    $addFields: {
+                        convertedPrice: { $toDouble: "$regularPrice" }
+                    }
+                }
+            ];
+
+            // now we want to sorting price
+
+            if (sortPrice === 'Low to High') {
+                sortPipeLine.push({ $sort: { convertedPrice: 1 } }); // Ascending order
+            } else if (sortPrice === 'High to Low') {
+                sortPipeLine.push({ $sort: { convertedPrice: -1 } }); // Descending order
+            }
+
+            // now we want to sorting price
+            if (sortDate === "Newest") {
+                sortPipeLine.push({ $sort: { addedTime: 1 } })
+            }
+            else if(sortDate === "Older"){
+                sortPipeLine.push({$sort:{addedTime: -1}})
+            }
+
+
+            // get all result
+
             try {
 
-                const result = await productCollection.find(queryData).toArray();
+                const result = await productCollection.aggregate(sortPipeLine).toArray();
                 res.send(result);
 
             }
