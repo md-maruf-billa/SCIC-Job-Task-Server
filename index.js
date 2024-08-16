@@ -31,10 +31,40 @@ async function run() {
 
 
         // get all products api
-        app.get("/all-products",async (req,res)=>{
+        app.get("/all-products", async (req, res) => {
             const result = await productCollection.find().toArray();
 
             res.send(result);
+        })
+
+        // All operations api
+        app.get("/products", async (req, res) => {
+            const search = req.query;
+            const brand = req.query;
+            const category = req.query;
+            const price = req.query;
+
+
+            // Search operation
+            const searchQuery = search.search;
+            if (search !== "") {
+                const result = await productCollection.aggregate(
+                    [
+                        {
+                            $match: {
+                                $or: [
+                                    { name: { $regex: searchQuery, $options: "i" } },
+                                    { regularPrice: { $regex: searchQuery, $options: "i" } },
+                                    { categories: { $regex: searchQuery, $options: "i" } },
+                                    { brandName: { $regex: searchQuery, $options: "i" } },
+                                ]
+                            }
+                        }
+                    ]
+                ).toArray();
+                res.send(result);
+                
+            }
         })
 
 
@@ -51,12 +81,6 @@ async function run() {
     }
 }
 run().catch(console.dir);
-
-
-
-
-
-
 
 
 //  port listening
