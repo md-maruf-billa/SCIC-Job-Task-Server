@@ -39,32 +39,38 @@ async function run() {
 
         // All operations api
         app.get("/products", async (req, res) => {
-            const search = req.query;
-            const brand = req.query;
-            const category = req.query;
-            const price = req.query;
+            const { search, brand, category, price } = req.query;
 
+            const queryData = {};
 
             // Search operation
-            const searchQuery = search.search;
-            if (search !== "") {
-                const result = await productCollection.aggregate(
-                    [
-                        {
-                            $match: {
-                                $or: [
-                                    { name: { $regex: searchQuery, $options: "i" } },
-                                    { regularPrice: { $regex: searchQuery, $options: "i" } },
-                                    { categories: { $regex: searchQuery, $options: "i" } },
-                                    { brandName: { $regex: searchQuery, $options: "i" } },
-                                ]
-                            }
-                        }
-                    ]
-                ).toArray();
-                res.send(result);
-                
+            if (search) {
+                queryData.$or = [
+                    { name: { $regex: search, $options: "i" } },
+                    { regularPrice: { $regex: search, $options: "i" } },
+                    { categories: { $regex: search, $options: "i" } },
+                    { brandName: { $regex: search, $options: "i" } }
+                ];
             }
+            if (brand) {
+                queryData.brandName = brand;
+            }
+            if (category) {
+                queryData.categories = category;
+            }
+
+            try {
+
+                const result = await productCollection.find(queryData).toArray();
+                res.send(result);
+
+            }
+            catch (error) {
+                res.status(500).send({ message: "Internal Server Error" });
+            }
+
+
+
         })
 
 
