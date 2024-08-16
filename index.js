@@ -58,6 +58,12 @@ async function run() {
             if (category) {
                 queryData.categories = category;
             }
+            if (price) {
+                const priceNumber = parseFloat(price);
+                queryData.$expr = {
+                    $lt: [{ $toDouble: "$regularPrice" }, priceNumber]
+                };
+            }
 
             try {
 
