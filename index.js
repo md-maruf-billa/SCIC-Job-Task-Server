@@ -39,9 +39,13 @@ async function run() {
 
         // All operations api
         app.get("/products", async (req, res) => {
-            const { search, brand, category, price, sortPrice, sortDate } = req.query;
+            const { search, brand, category, price, sortPrice, sortDate, page, size } = req.query;
+
+            const prevPage = parseInt(page) || 0;
+            const dataSize = parseInt(size) || 10;
 
             const queryData = {};
+
 
             // Search operation
             if (search) {
@@ -89,9 +93,14 @@ async function run() {
             if (sortDate === "Newest") {
                 sortPipeLine.push({ $sort: { addedTime: 1 } })
             }
-            else if(sortDate === "Older"){
-                sortPipeLine.push({$sort:{addedTime: -1}})
+            else if (sortDate === "Older") {
+                sortPipeLine.push({ $sort: { addedTime: -1 } })
             }
+
+            sortPipeLine.push(
+                { $skip: prevPage * dataSize },
+                { $limit: dataSize }
+            )
 
 
             // get all result
@@ -99,6 +108,7 @@ async function run() {
             try {
 
                 const result = await productCollection.aggregate(sortPipeLine).toArray();
+
                 res.send(result);
 
             }
