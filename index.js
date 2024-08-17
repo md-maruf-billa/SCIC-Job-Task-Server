@@ -121,14 +121,6 @@ async function run() {
         })
 
 
-
-
-        // Test api
-        app.get("/", (req, res) => {
-            res.send("hello Abumahid")
-        })
-
-
     } catch (err) {
         console.log(err)
     }
