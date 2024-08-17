@@ -20,3 +20,8 @@ DATABASE_PASSWORD= your database password
 ```
 npm run dev
 ```
+
+### If you want to Frontend repo hare it is-
+```
+https://github.com/md-maruf-billa/SCIC-job-task.git
+```
