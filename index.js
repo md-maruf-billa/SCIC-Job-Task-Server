@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import 'dotenv/config'
 
 const app = express();
@@ -118,6 +118,13 @@ async function run() {
 
 
 
+        })
+
+        // Get a single products
+        app.get("/products-details",async(req,res)=>{
+            const {id} = req.query;
+            const result = await productCollection.findOne({_id:new ObjectId(id)});
+            res.send(result)
         })
 
 
